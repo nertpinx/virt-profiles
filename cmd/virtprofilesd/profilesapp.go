@@ -35,20 +35,33 @@ func (pa *ProfilesApp) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	pa.mux.ServeHTTP(w, req)
 }
 
+type appError struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
+func errorResponse(w http.ResponseWriter, httpCode, errCode int, errMessage string) {
+	w.WriteHeader(httpCode)
+	enc := json.NewEncoder(w)
+	msg := appError{Code: errCode, Message: errMessage}
+	err := enc.Encode(msg)
+	if err != nil {
+		w.Write([]byte("500 - Something bad happened!"))
+	}
+}
+
 func (pa *ProfilesApp) Profiles(w http.ResponseWriter, r *http.Request) {
 	entries, err := pa.cat.Names()
 	if err != nil {
 		log.Printf("profiles: gathering: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("500 - Something bad happened!"))
+		errorResponse(w, http.StatusInternalServerError, 0, err.Error())
 		return
 	}
 	enc := json.NewEncoder(w)
 	err = enc.Encode(entries)
 	if err != nil {
 		log.Printf("profiles: encoding: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("500 - Something bad happened!"))
+		errorResponse(w, http.StatusInternalServerError, 0, err.Error())
 		return
 	}
 }
