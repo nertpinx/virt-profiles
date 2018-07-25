@@ -1,3 +1,8 @@
+// Package virtprofiles implements the VM profile processing
+//
+// A virt profile is a set of changes to be performed to a given representation of a VM.
+// For the purposes of this package, a representation of a VM is either a kubevirt API
+// DomainSpec object, or a libvirt XML document.
 package virtprofiles
 
 import "io/ioutil"
@@ -26,4 +31,12 @@ func (c *Catalogue) Names() ([]string, error) {
 		entries = append(entries, file.Name())
 	}
 	return entries, nil
+}
+
+func (c *Catalogue) Get(name string) (interface{}, error) {
+	return nil, nil
+}
+
+func (c *Catalogue) GetAll(names []string) ([]interface{}, error) {
+	return nil, nil
 }
