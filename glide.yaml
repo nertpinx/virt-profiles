@@ -1,0 +1,9 @@
+package: github.com/fromanirh/virt-profiles
+import:
+- package: k8s.io/api
+  subpackages:
+  - core/v1
+- package: kubevirt.io/kubevirt
+  repo: https://github.com/kubevirt/kubevirt
+  subpackages:
+  - pkg/api/v1
