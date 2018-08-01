@@ -7,17 +7,17 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/fromanirh/virt-profiles/pkg/virtprofiles"
+	"github.com/fromanirh/virt-profiles/pkg/catalogue"
 	"github.com/gorilla/mux"
 )
 
 type ProfilesApp struct {
-	cat *virtprofiles.Catalogue
+	cat *catalogue.Catalogue
 	mux *mux.Router
 }
 
 func NewProfilesApp(profilesDir string) (*ProfilesApp, error) {
-	cat, err := virtprofiles.NewCatalogue(profilesDir)
+	cat, err := catalogue.NewCatalogue(profilesDir)
 	if err != nil {
 		return nil, err
 	}
@@ -25,8 +25,11 @@ func NewProfilesApp(profilesDir string) (*ProfilesApp, error) {
 		cat: cat,
 		mux: mux.NewRouter().StrictSlash(true),
 	}
+	// POST: receive a preset from KubeVirt, add it to the profiles catalogue
+	app.mux.HandleFunc("/presets", app.Presets)
+	// GET: list all the profiles known to the system
 	app.mux.HandleFunc("/profiles", app.Profiles)
-	app.mux.HandleFunc("/resources", app.Resources)
+	// POST: apply all the relevant profiles to the domainspec, return updated domainspec
 	app.mux.HandleFunc("/domainspec", app.DomainSpec)
 	return app, nil
 }
@@ -66,8 +69,8 @@ func (pa *ProfilesApp) Profiles(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (pa *ProfilesApp) Resources(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Resources, %q", html.EscapeString(r.URL.Path))
+func (pa *ProfilesApp) Presets(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Presets, %q", html.EscapeString(r.URL.Path))
 }
 
 func (pa *ProfilesApp) DomainSpec(w http.ResponseWriter, r *http.Request) {

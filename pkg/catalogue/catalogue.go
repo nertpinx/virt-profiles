@@ -5,7 +5,10 @@
 // DomainSpec object, or a libvirt XML document.
 package virtprofiles
 
-import "io/ioutil"
+import (
+	k6tv1 "github.com/kubevirt/kubevirt/pkg/api/v1"
+	"io/ioutil"
+)
 
 // Catalogue manages a collection of virt profiles.
 type Catalogue struct {
@@ -31,6 +34,9 @@ func (c *Catalogue) Names() ([]string, error) {
 		entries = append(entries, file.Name())
 	}
 	return entries, nil
+}
+
+func (c *Catalogue) AddPreset(preset k6tv1.DomainPresetSpec) error {
 }
 
 func (c *Catalogue) Get(name string) (interface{}, error) {
