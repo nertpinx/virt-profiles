@@ -6,18 +6,16 @@
 package virtprofiles
 
 import (
-	k6tv1 "github.com/kubevirt/kubevirt/pkg/api/v1"
-	"io/ioutil"
+	k6tv1 "kubevirt.io/kubevirt/pkg/api/v1"
 )
 
 // Catalogue manages a collection of virt profiles.
 type Catalogue struct {
-	profilesDir string
 }
 
 func NewCatalogue(profilesDir string) (*Catalogue, error) {
 	// TODO: make sure profilesDir is abspath
-	return &Catalogue{profilesDir: profilesDir}, nil
+	return &Catalogue{}, nil
 }
 
 // Names return the names of all the profiles in the Catalogue
@@ -26,17 +24,11 @@ func NewCatalogue(profilesDir string) (*Catalogue, error) {
 // refer to profiles.
 func (c *Catalogue) Names() ([]string, error) {
 	entries := []string{}
-	files, err := ioutil.ReadDir(c.profilesDir)
-	if err != nil {
-		return entries, err
-	}
-	for _, file := range files {
-		entries = append(entries, file.Name())
-	}
 	return entries, nil
 }
 
 func (c *Catalogue) AddPreset(preset k6tv1.DomainPresetSpec) error {
+	return nil
 }
 
 func (c *Catalogue) Get(name string) (interface{}, error) {

@@ -1,4 +1,20 @@
-package main
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Copyright 2018 Red Hat, Inc.
+ */
+
+package profilerapp
 
 import (
 	"encoding/json"
@@ -7,21 +23,21 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/fromanirh/virt-profiles/pkg/catalogue"
+	catalogue "github.com/fromanirh/virt-profiles/pkg/catalogue"
 	"github.com/gorilla/mux"
 )
 
-type ProfilesApp struct {
+type ProfilerApp struct {
 	cat *catalogue.Catalogue
 	mux *mux.Router
 }
 
-func NewProfilesApp(profilesDir string) (*ProfilesApp, error) {
+func NewProfilerApp(profilesDir string) (*ProfilerApp, error) {
 	cat, err := catalogue.NewCatalogue(profilesDir)
 	if err != nil {
 		return nil, err
 	}
-	app := &ProfilesApp{
+	app := &ProfilerApp{
 		cat: cat,
 		mux: mux.NewRouter().StrictSlash(true),
 	}
@@ -34,7 +50,7 @@ func NewProfilesApp(profilesDir string) (*ProfilesApp, error) {
 	return app, nil
 }
 
-func (pa *ProfilesApp) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+func (pa *ProfilerApp) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	pa.mux.ServeHTTP(w, req)
 }
 
@@ -53,7 +69,7 @@ func errorResponse(w http.ResponseWriter, httpCode, errCode int, errMessage stri
 	}
 }
 
-func (pa *ProfilesApp) Profiles(w http.ResponseWriter, r *http.Request) {
+func (pa *ProfilerApp) Profiles(w http.ResponseWriter, r *http.Request) {
 	entries, err := pa.cat.Names()
 	if err != nil {
 		log.Printf("profiles: gathering: %v", err)
@@ -69,10 +85,10 @@ func (pa *ProfilesApp) Profiles(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (pa *ProfilesApp) Presets(w http.ResponseWriter, r *http.Request) {
+func (pa *ProfilerApp) Presets(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Presets, %q", html.EscapeString(r.URL.Path))
 }
 
-func (pa *ProfilesApp) DomainSpec(w http.ResponseWriter, r *http.Request) {
+func (pa *ProfilerApp) DomainSpec(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "DomainSpec, %q", html.EscapeString(r.URL.Path))
 }
