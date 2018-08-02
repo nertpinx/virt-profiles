@@ -51,7 +51,7 @@ func (p *Profiler) TranslateSpecs(domSpec *k6tv1.DomainSpec) (*libvirtxml.Domain
 	return ret, nil
 }
 
-func Convert_v1_Disk_To_api_Disk(diskDevice *v1.Disk, disk *Disk, devicePerBus map[string]int) error {
+func convert_v1_Disk_To_api_Disk(diskDevice *v1.Disk, disk *Disk, devicePerBus map[string]int) error {
 
 	if diskDevice.Disk != nil {
 		disk.Device = "disk"
@@ -131,32 +131,32 @@ func toApiReadOnly(src bool) *ReadOnly {
 	return nil
 }
 
-func Convert_v1_Volume_To_api_Disk(source *v1.Volume, disk *Disk, c *ConverterContext) error {
+func convert_v1_Volume_To_api_Disk(source *v1.Volume, disk *Disk, c *ConverterContext) error {
 
 	if source.RegistryDisk != nil {
-		return Convert_v1_RegistryDiskSource_To_api_Disk(source.Name, source.RegistryDisk, disk, c)
+		return convert_v1_RegistryDiskSource_To_api_Disk(source.Name, source.RegistryDisk, disk, c)
 	}
 
 	if source.CloudInitNoCloud != nil {
-		return Convert_v1_CloudInitNoCloudSource_To_api_Disk(source.CloudInitNoCloud, disk, c)
+		return convert_v1_CloudInitNoCloudSource_To_api_Disk(source.CloudInitNoCloud, disk, c)
 	}
 
 	if source.PersistentVolumeClaim != nil {
-		return Convert_v1_FilesystemVolumeSource_To_api_Disk(source.Name, disk, c)
+		return convert_v1_FilesystemVolumeSource_To_api_Disk(source.Name, disk, c)
 	}
 
 	if source.Ephemeral != nil {
-		return Convert_v1_EphemeralVolumeSource_To_api_Disk(source.Name, source.Ephemeral, disk, c)
+		return convert_v1_EphemeralVolumeSource_To_api_Disk(source.Name, source.Ephemeral, disk, c)
 	}
 	if source.EmptyDisk != nil {
-		return Convert_v1_EmptyDiskSource_To_api_Disk(source.Name, source.EmptyDisk, disk, c)
+		return convert_v1_EmptyDiskSource_To_api_Disk(source.Name, source.EmptyDisk, disk, c)
 	}
 
 	return fmt.Errorf("disk %s references an unsupported source", disk.Alias.Name)
 }
 
-// Convert_v1_FilesystemVolumeSource_To_api_Disk takes a FS source and builds the KVM Disk representation
-func Convert_v1_FilesystemVolumeSource_To_api_Disk(volumeName string, disk *Disk, c *ConverterContext) error {
+// convert_v1_FilesystemVolumeSource_To_api_Disk takes a FS source and builds the KVM Disk representation
+func convert_v1_FilesystemVolumeSource_To_api_Disk(volumeName string, disk *Disk, c *ConverterContext) error {
 
 	disk.Type = "file"
 	disk.Driver.Type = "raw"
@@ -168,7 +168,7 @@ func Convert_v1_FilesystemVolumeSource_To_api_Disk(volumeName string, disk *Disk
 	return nil
 }
 
-func Convert_v1_CloudInitNoCloudSource_To_api_Disk(source *v1.CloudInitNoCloudSource, disk *Disk, c *ConverterContext) error {
+func convert_v1_CloudInitNoCloudSource_To_api_Disk(source *v1.CloudInitNoCloudSource, disk *Disk, c *ConverterContext) error {
 	if disk.Type == "lun" {
 		return fmt.Errorf("device %s is of type lun. Not compatible with a file based disk", disk.Alias.Name)
 	}
@@ -179,7 +179,7 @@ func Convert_v1_CloudInitNoCloudSource_To_api_Disk(source *v1.CloudInitNoCloudSo
 	return nil
 }
 
-func Convert_v1_EmptyDiskSource_To_api_Disk(volumeName string, _ *v1.EmptyDiskSource, disk *Disk, c *ConverterContext) error {
+func convert_v1_EmptyDiskSource_To_api_Disk(volumeName string, _ *v1.EmptyDiskSource, disk *Disk, c *ConverterContext) error {
 	if disk.Type == "lun" {
 		return fmt.Errorf("device %s is of type lun. Not compatible with a file based disk", disk.Alias.Name)
 	}
@@ -191,7 +191,7 @@ func Convert_v1_EmptyDiskSource_To_api_Disk(volumeName string, _ *v1.EmptyDiskSo
 	return nil
 }
 
-func Convert_v1_RegistryDiskSource_To_api_Disk(volumeName string, _ *v1.RegistryDiskSource, disk *Disk, c *ConverterContext) error {
+func convert_v1_RegistryDiskSource_To_api_Disk(volumeName string, _ *v1.RegistryDiskSource, disk *Disk, c *ConverterContext) error {
 	if disk.Type == "lun" {
 		return fmt.Errorf("device %s is of type lun. Not compatible with a file based disk", disk.Alias.Name)
 	}
@@ -206,14 +206,14 @@ func Convert_v1_RegistryDiskSource_To_api_Disk(volumeName string, _ *v1.Registry
 	return nil
 }
 
-func Convert_v1_EphemeralVolumeSource_To_api_Disk(volumeName string, source *v1.EphemeralVolumeSource, disk *Disk, c *ConverterContext) error {
+func convert_v1_EphemeralVolumeSource_To_api_Disk(volumeName string, source *v1.EphemeralVolumeSource, disk *Disk, c *ConverterContext) error {
 	disk.Type = "file"
 	disk.Driver.Type = "qcow2"
 	disk.Source.File = ephemeraldisk.GetFilePath(volumeName)
 	disk.BackingStore = &BackingStore{}
 
 	backingDisk := &Disk{Driver: &DiskDriver{}}
-	err := Convert_v1_FilesystemVolumeSource_To_api_Disk(volumeName, backingDisk, c)
+	err := convert_v1_FilesystemVolumeSource_To_api_Disk(volumeName, backingDisk, c)
 	if err != nil {
 		return err
 	}
@@ -225,7 +225,7 @@ func Convert_v1_EphemeralVolumeSource_To_api_Disk(volumeName string, source *v1.
 	return nil
 }
 
-func Convert_v1_Watchdog_To_api_Watchdog(source *v1.Watchdog, watchdog *Watchdog, _ *ConverterContext) error {
+func convert_v1_Watchdog_To_api_Watchdog(source *v1.Watchdog, watchdog *Watchdog, _ *ConverterContext) error {
 	watchdog.Alias = &Alias{
 		Name: source.Name,
 	}
@@ -237,7 +237,7 @@ func Convert_v1_Watchdog_To_api_Watchdog(source *v1.Watchdog, watchdog *Watchdog
 	return fmt.Errorf("watchdog %s can't be mapped, no watchdog type specified", source.Name)
 }
 
-func Convert_v1_Clock_To_api_Clock(source *v1.Clock, clock *Clock, c *ConverterContext) error {
+func convert_v1_Clock_To_api_Clock(source *v1.Clock, clock *Clock, c *ConverterContext) error {
 	if source.UTC != nil {
 		clock.Offset = "utc"
 		if source.UTC.OffsetSeconds != nil {
@@ -293,7 +293,7 @@ func convertFeatureState(source *v1.FeatureState) *FeatureState {
 	return nil
 }
 
-func Convert_v1_Features_To_api_Features(source *v1.Features, features *Features, c *ConverterContext) error {
+func convert_v1_Features_To_api_Features(source *v1.Features, features *Features, c *ConverterContext) error {
 	if source.ACPI.Enabled == nil || *source.ACPI.Enabled {
 		features.ACPI = &FeatureEnabled{}
 	}
@@ -304,7 +304,7 @@ func Convert_v1_Features_To_api_Features(source *v1.Features, features *Features
 	}
 	if source.Hyperv != nil {
 		features.Hyperv = &FeatureHyperv{}
-		err := Convert_v1_FeatureHyperv_To_api_FeatureHyperv(source.Hyperv, features.Hyperv, c)
+		err := convert_v1_FeatureHyperv_To_api_FeatureHyperv(source.Hyperv, features.Hyperv, c)
 		if err != nil {
 			return nil
 		}
@@ -312,13 +312,13 @@ func Convert_v1_Features_To_api_Features(source *v1.Features, features *Features
 	return nil
 }
 
-func Convert_v1_Machine_To_api_OSType(source *v1.Machine, ost *OSType, c *ConverterContext) error {
+func convert_v1_Machine_To_api_OSType(source *v1.Machine, ost *OSType, c *ConverterContext) error {
 	ost.Machine = source.Type
 
 	return nil
 }
 
-func Convert_v1_FeatureHyperv_To_api_FeatureHyperv(source *v1.FeatureHyperv, hyperv *FeatureHyperv, c *ConverterContext) error {
+func convert_v1_FeatureHyperv_To_api_FeatureHyperv(source *v1.FeatureHyperv, hyperv *FeatureHyperv, c *ConverterContext) error {
 	if source.Spinlocks != nil {
 		hyperv.Spinlocks = &FeatureSpinlocks{
 			State:   boolToOnOff(source.Spinlocks.Enabled, true),
@@ -341,7 +341,7 @@ func Convert_v1_FeatureHyperv_To_api_FeatureHyperv(source *v1.FeatureHyperv, hyp
 	return nil
 }
 
-func Convert_v1_VirtualMachine_To_api_Domain(vmi *v1.VirtualMachineInstance, domain *Domain, c *ConverterContext) (err error) {
+func convert_v1_VirtualMachine_To_api_Domain(vmi *v1.VirtualMachineInstance, domain *Domain, c *ConverterContext) (err error) {
 	precond.MustNotBeNil(vmi)
 	precond.MustNotBeNil(domain)
 	precond.MustNotBeNil(c)
@@ -379,7 +379,7 @@ func Convert_v1_VirtualMachine_To_api_Domain(vmi *v1.VirtualMachineInstance, dom
 	}
 
 	if v, ok := vmi.Spec.Domain.Resources.Requests[k8sv1.ResourceMemory]; ok {
-		if domain.Spec.Memory, err = QuantityToByte(v); err != nil {
+		if domain.Spec.Memory, err = quantityToByte(v); err != nil {
 			return err
 		}
 	}
@@ -399,7 +399,7 @@ func Convert_v1_VirtualMachine_To_api_Domain(vmi *v1.VirtualMachineInstance, dom
 	for _, disk := range vmi.Spec.Domain.Devices.Disks {
 		newDisk := Disk{}
 
-		err := Convert_v1_Disk_To_api_Disk(&disk, &newDisk, devicePerBus)
+		err := convert_v1_Disk_To_api_Disk(&disk, &newDisk, devicePerBus)
 		if err != nil {
 			return err
 		}
@@ -407,7 +407,7 @@ func Convert_v1_VirtualMachine_To_api_Domain(vmi *v1.VirtualMachineInstance, dom
 		if volume == nil {
 			return fmt.Errorf("No matching volume with name %s found", disk.VolumeName)
 		}
-		err = Convert_v1_Volume_To_api_Disk(volume, &newDisk, c)
+		err = convert_v1_Volume_To_api_Disk(volume, &newDisk, c)
 		if err != nil {
 			return err
 		}
@@ -416,7 +416,7 @@ func Convert_v1_VirtualMachine_To_api_Domain(vmi *v1.VirtualMachineInstance, dom
 
 	if vmi.Spec.Domain.Devices.Watchdog != nil {
 		newWatchdog := &Watchdog{}
-		err := Convert_v1_Watchdog_To_api_Watchdog(vmi.Spec.Domain.Devices.Watchdog, newWatchdog, c)
+		err := convert_v1_Watchdog_To_api_Watchdog(vmi.Spec.Domain.Devices.Watchdog, newWatchdog, c)
 		if err != nil {
 			return err
 		}
@@ -426,7 +426,7 @@ func Convert_v1_VirtualMachine_To_api_Domain(vmi *v1.VirtualMachineInstance, dom
 	if vmi.Spec.Domain.Clock != nil {
 		clock := vmi.Spec.Domain.Clock
 		newClock := &Clock{}
-		err := Convert_v1_Clock_To_api_Clock(clock, newClock, c)
+		err := convert_v1_Clock_To_api_Clock(clock, newClock, c)
 		if err != nil {
 			return err
 		}
@@ -435,13 +435,13 @@ func Convert_v1_VirtualMachine_To_api_Domain(vmi *v1.VirtualMachineInstance, dom
 
 	if vmi.Spec.Domain.Features != nil {
 		domain.Spec.Features = &Features{}
-		err := Convert_v1_Features_To_api_Features(vmi.Spec.Domain.Features, domain.Spec.Features, c)
+		err := convert_v1_Features_To_api_Features(vmi.Spec.Domain.Features, domain.Spec.Features, c)
 		if err != nil {
 			return err
 		}
 	}
 	apiOst := &vmi.Spec.Domain.Machine
-	err = Convert_v1_Machine_To_api_OSType(apiOst, &domain.Spec.OS.Type, c)
+	err = convert_v1_Machine_To_api_OSType(apiOst, &domain.Spec.OS.Type, c)
 	if err != nil {
 		return err
 	}
@@ -673,7 +673,7 @@ func configVMCIDR(qemuArg *Arg, iface v1.Interface, network v1.Network) error {
 }
 
 func configDNSSearchName(qemuArg *Arg) error {
-	_, dnsDoms, err := GetResolvConfDetailsFromPod()
+	_, dnsDoms, err := getResolvConfDetailsFromPod()
 	if err != nil {
 		return err
 	}
@@ -684,11 +684,11 @@ func configDNSSearchName(qemuArg *Arg) error {
 	return nil
 }
 
-func SecretToLibvirtSecret(vmi *v1.VirtualMachineInstance, secretName string) string {
+func secretToLibvirtSecret(vmi *v1.VirtualMachineInstance, secretName string) string {
 	return fmt.Sprintf("%s-%s-%s---", secretName, vmi.Namespace, vmi.Name)
 }
 
-func QuantityToByte(quantity resource.Quantity) (Memory, error) {
+func quantityToByte(quantity resource.Quantity) (Memory, error) {
 	memorySize, _ := quantity.AsInt64()
 	if memorySize < 0 {
 		return Memory{Unit: "B"}, fmt.Errorf("Memory size '%s' must be greater than or equal to 0", quantity.String())
@@ -728,18 +728,18 @@ func boolToYesNo(value *bool, defaultYes bool) string {
 }
 
 // returns nameservers [][]byte, searchdomains []string, error
-func GetResolvConfDetailsFromPod() ([][]byte, []string, error) {
+func getResolvConfDetailsFromPod() ([][]byte, []string, error) {
 	b, err := ioutil.ReadFile(resolvConf)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	nameservers, err := ParseNameservers(string(b))
+	nameservers, err := parseNameservers(string(b))
 	if err != nil {
 		return nil, nil, err
 	}
 
-	searchDomains, err := ParseSearchDomains(string(b))
+	searchDomains, err := parseSearchDomains(string(b))
 	if err != nil {
 		return nil, nil, err
 	}
@@ -750,7 +750,7 @@ func GetResolvConfDetailsFromPod() ([][]byte, []string, error) {
 	return nameservers, searchDomains, err
 }
 
-func ParseNameservers(content string) ([][]byte, error) {
+func parseNameservers(content string) ([][]byte, error) {
 	var nameservers [][]byte
 
 	re, err := regexp.Compile("([0-9]{1,3}.?){4}")
@@ -782,7 +782,7 @@ func ParseNameservers(content string) ([][]byte, error) {
 	return nameservers, nil
 }
 
-func ParseSearchDomains(content string) ([]string, error) {
+func parseSearchDomains(content string) ([]string, error) {
 	var searchDomains []string
 
 	scanner := bufio.NewScanner(strings.NewReader(content))
