@@ -2,7 +2,7 @@
 
 This is an implementation in golang of the [virt profiles/virtuned concept](https://github.com/nertpinx/virt-manager/pull/1)
 
-[![Documentation](https://godoc.org/github.com/fromanirh/virt-profiles/pkg/virtprofiles?status.svg)](http://godoc.org/github.com/fromanirh/virt-profiles/pkg/virtprofiles)
+[![Documentation](https://godoc.org/github.com/fromanirh/virt-profiles/pkg/profiler?status.svg)](http://godoc.org/github.com/fromanirh/virt-profiles/pkg/profiler)
 
 ## license
 Apache v2
