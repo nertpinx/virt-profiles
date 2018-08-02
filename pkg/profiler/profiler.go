@@ -5,10 +5,13 @@ import (
 	k6tv1 "kubevirt.io/kubevirt/pkg/api/v1"
 )
 
+const priorityMarking = "virtualmachineinstancepresets.admission.kubevirt.io/priority"
+
 type Profiler struct {
-	secrets        map[string]*k8sv1.Secret
-	virtualMachine *k6tv1.VirtualMachineInstance
-	baseDiskPath   string
+	secrets           map[string]*k8sv1.Secret
+	virtualMachine    *k6tv1.VirtualMachineInstance
+	baseDiskPath      string
+	sortingAnnotation string
 }
 
 func (p *Profiler) AddSecret(key string, value *k8sv1.Secret) *Profiler {
@@ -18,6 +21,11 @@ func (p *Profiler) AddSecret(key string, value *k8sv1.Secret) *Profiler {
 
 func (p *Profiler) SetVirtualMachine(vm *k6tv1.VirtualMachineInstance) *Profiler {
 	p.virtualMachine = vm
+	return p
+}
+
+func (p *Profiler) SetPriorityMarking(marking string) *Profiler {
+	p.sortingAnnotation = priorityMarking
 	return p
 }
 
@@ -32,7 +40,8 @@ func (p *Profiler) BaseDiskPath() string {
 
 func NewProfiler(basePath string) *Profiler {
 	return &Profiler{
-		secrets:      make(map[string]*k8sv1.Secret),
-		baseDiskPath: basePath,
+		secrets:           make(map[string]*k8sv1.Secret),
+		baseDiskPath:      basePath,
+		sortingAnnotation: priorityMarking,
 	}
 }
