@@ -10,5 +10,14 @@ Apache v2
 ## content
 The components of this project are:
 
-- package(s) implementing the aforementioned concept, intended do be easily consumable by k8s-related project, like kubevirt
-- a service exposing a REST API, as specified in $TODO
+```
+.
+├── cmd/virtprofilesd             - Exporting functions as REST APIs
+├── cmd/tools/                    - Command line tools, see README.md here
+|            └── virtprofilectl   - Example client/debug tool for virtprofilesd
+├── collection                    - Collection of the actual profiles
+├── pkg/profiler                  - Package for applying profiles
+└── pkg/catalogue                 - Utility package to access collection of data
+```
+
+This packages reuses CRDs and types from KubeVirt and Kubernetes project
