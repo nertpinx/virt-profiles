@@ -79,7 +79,33 @@ format in a LDS XML.
 Future implementation
 ---------------------
 
-TBD
+Near term:
+
+* Stage 1
+```
+[user] -{KVMID.yaml}->[STAGE#1]->-{KVMID.yaml}
+                         A
+                         |
+        -{preset_1.yaml}-+
+        -{preset_2.yaml}-+
+          ...            |
+        -{preset_N.yaml}-'
+```
+* Stage 2
+```
+{KVMID.yaml}->[STAGE#2]->-{LDS}
+```
+
+* Stage 3:
+```
+         {LDS}->[STAGE#3]->-{LDS.xml}- [user]
+                   A
+                   |
+  -{profile_1.xml>-+
+  -{profile_2.xml>-+
+    ...            |
+  -{profile_N.xml>-'
+```
 
 key ideas:
 1. clone and extend profiles; apply them in stage #1
