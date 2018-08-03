@@ -43,7 +43,7 @@ This is what is already implemented in kubevirt, The KVMID is augmented with the
 Translate the KVMID in a fully-specified LDS Frontend
 
 ```
-{KVMID.yaml}->[STAGE#2]->-{Yet Undefined Format}
+{KVMID.yaml}->[STAGE#2]->-{Internal Format}
                  A
                  |
     -{profiles?>-+
@@ -59,7 +59,7 @@ A fully specified LDS Frontend has not a clear representation. There are three m
 Sort out the LDS Backend, and complete the LDS
 
 ```
-{Yet Undefined Format}->[STAGE#3]->-{LDS.xml}
+{Internal Format}->[STAGE#3]->-{LDS.xml}
                            A
                            |
               -{profiles?>-+
@@ -83,7 +83,7 @@ Near term:
 
 * Stage 1
 ```
-[user] -{KVMID.yaml}->[STAGE#1]->-{KVMID.yaml}
+[user] -{KVMID.yaml}->[STAGE#1]->-{KVMID}
                          A
                          |
         -{preset_1.yaml}-+
@@ -93,22 +93,47 @@ Near term:
 ```
 * Stage 2
 ```
-{KVMID.yaml}->[STAGE#2]->-{LDS}
+{KVMID}->[STAGE#2]->-{LDS}
 ```
 
 * Stage 3:
 ```
-         {LDS}->[STAGE#3]->-{LDS.xml}- [user]
-                   A
-                   |
-  -{profile_1.xml>-+
-  -{profile_2.xml>-+
-    ...            |
-  -{profile_N.xml>-'
+          {LDS}->[STAGE#3]->-{LDS.xml}- [user]
+                    A
+                    |
+  -{profile_1.yaml>-+
+  -{profile_2.yaml>-+
+    ...             |
+  -{profile_N.yaml>-'
+```
+
+* Full pipeline
+```
+
+        kubevirt preset overlap                      kubevirt replacement/enhancement
+       ~~~~~~~~~~~~~~~~~~~~~~~~~~              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                                  {KVMID.yaml}
+                                  -->-->-->--.
+[user] -{KVMID.yaml}->[STAGE#1]->'           +-[STAGE#2]->-{LDS}->-[STAGE#3]->-->{LDS.xml}- [user]
+                         A                   |                       |
+                         |                   A                       |
+        -{preset_1.yaml}-+                   |                       A
+        -{preset_2.yaml}-+                   |                       |
+          ...            |                   A                       |
+        -{preset_N.yaml}-'                   |                       A
+                                             |                       |
+                          {LDS.yaml}->-->-->-'                       |
+                                                                     A
+                                                   -{profile_1.yaml>-+
+                                                   -{profile_2.yaml>-+
+                                                     ...             |
+                                                   -{profile_N.yaml>-'
+
+
 ```
 
 key ideas:
 1. clone and extend profiles; apply them in stage #1
 2. expect KVMID to catch up with LDS Frontend, use extended Presets to tune LDS Frontend
-3. use partial LDS as Yet Undefined Format in stage #2/#3
-4. require a different set of profiles to tune the LDS Backend.
+3. use partial LDS as Internal Format in stage #2/#3
+4. `presets` apply to KVMID, `profiles` apply to LDS

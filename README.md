@@ -12,12 +12,15 @@ The components of this project are:
 
 ```
 .
-├── cmd/virtprofilesd             - Exporting functions as REST APIs
+├── cmd/virtprofilesd             - Serving REST APIs
 ├── cmd/tools/                    - Command line tools, see README.md here
 |            └── virtprofilectl   - Example client/debug tool for virtprofilesd
 ├── collection                    - Collection of the actual profiles
-├── pkg/profiler                  - Package for applying profiles
-└── pkg/catalogue                 - Utility package to access collection of data
+├── internal/pkg                  - Internal package (unstable API)
+               └── profilerapp    - Exporting functions as REST APIs
+└── pkg/                          - Exported packages (stable API)
+      ├── profiler                - Package for applying profiles
+      └── catalogue               - Utility package to access collection of data
 ```
 
 This packages reuses CRDs and types from KubeVirt and Kubernetes project
